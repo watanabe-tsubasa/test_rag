@@ -1,0 +1,21 @@
+// See https://containers.dev/implementors/json_reference/ for configuration reference
+{
+	"name": "Untitled Node.js project",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+  "remoteUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Asuka.insertnumbers",
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-close-tag",
+        "formulahendry.auto-rename-tag",
+        "anthropic.claude-code",
+        "andrewmcodes.tailwindcss-extension-pack",
+        "stivo.tailwind-fold"
+      ]
+    }
+  }
+}
