@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { db } from "@/db";
 import { documents } from "@/db/schema";
 import { createEmbedding } from "@/lib/embed";
