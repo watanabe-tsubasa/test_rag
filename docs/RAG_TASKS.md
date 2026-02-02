@@ -232,18 +232,23 @@ export async function POST(req: Request) {
 
 ## Phase 7: フロントエンド UI の実装
 
-- [ ] ドキュメント登録フォームの作成
-  - [ ] テキストエリアで content 入力
-  - [ ] /api/documents への POST
-  - [ ] 登録成功メッセージ表示
-- [ ] チャット UI の更新
-  - [ ] /api/chat への POST (既存の場合は修正)
-  - [ ] 質問と回答の表示
-  - [ ] ローディング状態の処理
+- [x] ドキュメント登録フォームの作成
+  - [x] テキストエリアで content 入力
+  - [x] /api/documents への POST
+  - [x] 登録成功メッセージ表示
+- [x] チャット UI の更新
+  - [x] /api/chat への POST (既存の場合は修正)
+  - [x] 質問と回答の表示
+  - [x] ローディング状態の処理
+
+### 実装ファイル
+**app/rag/page.tsx** - RAGチャットページ (`/rag` でアクセス)
 
 ---
 
 ## Phase 8: 動作確認・テスト
+
+> **Note**: GitHub Codespaces上で動作確認済み。ローカル環境でのテストはVercelデプロイ後に実施。
 
 - [ ] ドキュメント登録の動作確認
   - [ ] 複数のドキュメントを登録
@@ -256,6 +261,12 @@ export async function POST(req: Request) {
 - [ ] RAG 回答の品質確認
   - [ ] GPT が文脈を使って回答しているか確認
   - [ ] 無関係な質問への対応確認
+
+### Vercelデプロイ手順
+1. GitHubにプッシュ
+2. Vercelでプロジェクトをインポート（Root Directory: `test-rag-app`）
+3. 環境変数を設定: `OPENAI_API_KEY`, `DATABASE_URL`
+4. デプロイ
 
 ### 検証用 SQL
 ```sql
@@ -270,25 +281,26 @@ SELECT * FROM pg_extension WHERE extname = 'vector';
 
 ## Phase 9: 強化・改善 (オプション)
 
-- [ ] チャンク分割機能の実装
+- [ ] チャンク分割機能の実装 (pending)
   - [ ] 長文を適切なサイズに分割
   - [ ] LangChain の TextSplitter 使用を検討
   - [ ] チャンクごとに embedding 生成
-- [ ] embedding 型を vector として適切に扱う
-  - [ ] Drizzle の customType で vector 型定義
-  - [ ] JSON.stringify を使わない実装
-- [ ] metadata の追加
-  - [ ] title カラム追加
-  - [ ] source カラム追加 (ファイル名など)
-  - [ ] tags カラム追加
-- [ ] PDF アップロード対応
-  - [ ] pdf-parse などで PDF テキスト抽出
-  - [ ] チャンク分割して登録
-  - [ ] ファイルアップロード UI
-- [ ] Supabase RPC 化
-  - [ ] PostgreSQL Function で検索処理を実装
-  - [ ] Drizzle から RPC 呼び出し
-  - [ ] パフォーマンス改善
+- [x] embedding 型を vector として適切に扱う
+  - [x] Drizzle の customType で vector 型定義（toDriver/fromDriver実装済み）
+  - [x] JSON.stringify を使わない実装
+- [x] metadata の追加
+  - [x] title カラム追加
+  - [x] source カラム追加 (ファイル名など)
+  - [x] tags カラム追加
+  - [x] UI更新（登録フォーム・参照元表示）
+- [x] PDF アップロード対応
+  - [x] pdf-parse で PDF テキスト抽出
+  - [ ] チャンク分割して登録（pendingのため未実装）
+  - [x] ファイルアップロード UI
+- [x] Supabase RPC 化
+  - [x] PostgreSQL Function で検索処理を実装 (`supabase/functions/search_documents.sql`)
+  - [x] Drizzle から RPC 呼び出し（フォールバック付き）
+  - [x] similarity スコアの返却
 
 ---
 
