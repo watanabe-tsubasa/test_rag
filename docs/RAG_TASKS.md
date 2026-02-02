@@ -281,10 +281,11 @@ SELECT * FROM pg_extension WHERE extname = 'vector';
 
 ## Phase 9: 強化・改善 (オプション)
 
-- [ ] チャンク分割機能の実装 (pending)
-  - [ ] 長文を適切なサイズに分割
-  - [ ] LangChain の TextSplitter 使用を検討
-  - [ ] チャンクごとに embedding 生成
+- [x] チャンク分割機能の実装
+  - [x] 長文を適切なサイズに分割（lib/chunker.ts）
+  - [x] 段落・文単位での分割、オーバーラップ対応
+  - [x] チャンクごとに embedding 生成
+  - [x] app/api/documents/route.ts, app/api/documents/upload/route.ts で使用
 - [x] embedding 型を vector として適切に扱う
   - [x] Drizzle の customType で vector 型定義（toDriver/fromDriver実装済み）
   - [x] JSON.stringify を使わない実装
@@ -295,7 +296,7 @@ SELECT * FROM pg_extension WHERE extname = 'vector';
   - [x] UI更新（登録フォーム・参照元表示）
 - [x] PDF アップロード対応
   - [x] pdf-parse で PDF テキスト抽出
-  - [ ] チャンク分割して登録（pendingのため未実装）
+  - [x] チャンク分割して登録
   - [x] ファイルアップロード UI
 - [x] Supabase RPC 化
   - [x] PostgreSQL Function で検索処理を実装 (`supabase/functions/search_documents.sql`)
