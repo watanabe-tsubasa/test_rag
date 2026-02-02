@@ -43,6 +43,9 @@ export async function POST(req: Request) {
       answer: response.output_text,
       sources: docs.map((d) => ({
         id: d.id,
+        title: d.title,
+        source: d.source,
+        tags: d.tags,
         content: d.content.substring(0, 100) + "...",
       })),
     });

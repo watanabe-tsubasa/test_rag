@@ -27,9 +27,14 @@ const vector = customType<{ data: number[] }>({
 export const documents = pgTable("documents", {
   id: uuid("id").defaultRandom().primaryKey(),
 
+  // メインコンテンツ
   content: text("content").notNull(),
-
   embedding: vector("embedding").notNull(),
+
+  // メタデータ
+  title: text("title"),
+  source: text("source"), // ファイル名やURLなど
+  tags: text("tags"), // カンマ区切りのタグ
 
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -3,9 +3,17 @@ import { documents } from "@/db/schema";
 import { createEmbedding } from "@/lib/embed";
 import { NextResponse } from "next/server";
 
+interface CreateDocumentRequest {
+  content: string;
+  title?: string;
+  source?: string;
+  tags?: string;
+}
+
 export async function POST(req: Request) {
   try {
-    const { content } = await req.json();
+    const { content, title, source, tags }: CreateDocumentRequest =
+      await req.json();
 
     if (!content || typeof content !== "string") {
       return NextResponse.json(
@@ -18,7 +26,10 @@ export async function POST(req: Request) {
 
     await db.insert(documents).values({
       content,
-      embedding, // customType<number[]>なので配列をそのまま渡す
+      embedding,
+      title: title || null,
+      source: source || null,
+      tags: tags || null,
     });
 
     return NextResponse.json({ success: true });
