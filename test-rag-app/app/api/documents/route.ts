@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { documents } from "@/db/schema";
 import { createEmbedding } from "@/lib/embed";
+import { splitTextIntoChunks, ChunkOptions } from "@/lib/chunker";
 import { NextResponse } from "next/server";
 
 interface CreateDocumentRequest {
@@ -8,12 +9,20 @@ interface CreateDocumentRequest {
   title?: string;
   source?: string;
   tags?: string;
+  enableChunking?: boolean;
+  chunkOptions?: ChunkOptions;
 }
 
 export async function POST(req: Request) {
   try {
-    const { content, title, source, tags }: CreateDocumentRequest =
-      await req.json();
+    const {
+      content,
+      title,
+      source,
+      tags,
+      enableChunking = true,
+      chunkOptions,
+    }: CreateDocumentRequest = await req.json();
 
     if (!content || typeof content !== "string") {
       return NextResponse.json(
@@ -22,6 +31,33 @@ export async function POST(req: Request) {
       );
     }
 
+    // チャンク分割が有効な場合
+    if (enableChunking) {
+      const chunks = splitTextIntoChunks(content, chunkOptions);
+
+      // 各チャンクに対してembeddingを生成して保存
+      const insertPromises = chunks.map(async (chunk) => {
+        const embedding = await createEmbedding(chunk.content);
+        return db.insert(documents).values({
+          content: chunk.content,
+          embedding,
+          title: title
+            ? `${title} (${chunk.chunkIndex + 1}/${chunk.totalChunks})`
+            : null,
+          source: source || null,
+          tags: tags || null,
+        });
+      });
+
+      await Promise.all(insertPromises);
+
+      return NextResponse.json({
+        success: true,
+        chunksCreated: chunks.length,
+      });
+    }
+
+    // チャンク分割が無効な場合は従来通り
     const embedding = await createEmbedding(content);
 
     await db.insert(documents).values({
@@ -32,7 +68,7 @@ export async function POST(req: Request) {
       tags: tags || null,
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, chunksCreated: 1 });
   } catch (error) {
     console.error("Error creating document:", error);
     return NextResponse.json(

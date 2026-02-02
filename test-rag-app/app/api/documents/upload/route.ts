@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { documents } from "@/db/schema";
 import { createEmbedding } from "@/lib/embed";
+import { splitTextIntoChunks } from "@/lib/chunker";
 import { NextResponse } from "next/server";
 import * as pdfParse from "pdf-parse";
 
@@ -10,6 +11,7 @@ export async function POST(req: Request) {
     const file = formData.get("file") as File | null;
     const title = formData.get("title") as string | null;
     const tags = formData.get("tags") as string | null;
+    const enableChunking = formData.get("enableChunking") !== "false"; // デフォルトtrue
 
     if (!file) {
       return NextResponse.json({ error: "file is required" }, { status: 400 });
@@ -37,22 +39,44 @@ export async function POST(req: Request) {
       );
     }
 
-    // Embedding生成
-    const embedding = await createEmbedding(content);
+    const documentTitle = title || file.name;
+    let chunksCreated = 1;
 
-    // ドキュメント登録
-    await db.insert(documents).values({
-      content,
-      embedding,
-      title: title || file.name,
-      source: file.name,
-      tags: tags || null,
-    });
+    if (enableChunking) {
+      // チャンク分割して登録
+      const chunks = splitTextIntoChunks(content);
+
+      const insertPromises = chunks.map(async (chunk) => {
+        const embedding = await createEmbedding(chunk.content);
+        return db.insert(documents).values({
+          content: chunk.content,
+          embedding,
+          title: `${documentTitle} (${chunk.chunkIndex + 1}/${chunk.totalChunks})`,
+          source: file.name,
+          tags: tags || null,
+        });
+      });
+
+      await Promise.all(insertPromises);
+      chunksCreated = chunks.length;
+    } else {
+      // チャンク分割なし
+      const embedding = await createEmbedding(content);
+
+      await db.insert(documents).values({
+        content,
+        embedding,
+        title: documentTitle,
+        source: file.name,
+        tags: tags || null,
+      });
+    }
 
     return NextResponse.json({
       success: true,
       filename: file.name,
       textLength: content.length,
+      chunksCreated,
     });
   } catch (error) {
     console.error("Error uploading PDF:", error);
