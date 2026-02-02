@@ -25,7 +25,7 @@ export async function POST(req: Request) {
 
     // 4. GPTで回答を生成
     const response = await openaiClient.responses.create({
-      model: "gpt-4.1-mini",
+      model: "gpt-5-chat-latest",
       input: [
         {
           role: "system",

@@ -16,7 +16,7 @@ export async function searchSimilar(
   const results = await db.execute(sql`
     SELECT id, content, created_at as "createdAt"
     FROM documents
-    ORDER BY embedding::vector <-> ${embeddingStr}::vector
+    ORDER BY embedding <-> ${embeddingStr}::vector
     LIMIT ${limit};
   `);
 

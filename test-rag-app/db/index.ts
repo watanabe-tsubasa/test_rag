@@ -3,7 +3,6 @@ import postgres from "postgres";
 import * as schema from "./schema";
 
 const DATABASE_URL = process.env.DATABASE_URL;
-console.log("DATABASE_URL:", DATABASE_URL);
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is not set");

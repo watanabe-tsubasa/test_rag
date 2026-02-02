@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     await db.insert(documents).values({
       content,
-      embedding: JSON.stringify(embedding),
+      embedding, // customType<number[]>なので配列をそのまま渡す
     });
 
     return NextResponse.json({ success: true });
