@@ -5,7 +5,7 @@ import { documents } from "@/db/schema";
 import { createEmbedding } from "@/lib/embed";
 import { splitTextIntoChunks } from "@/lib/chunker";
 import { NextResponse } from "next/server";
-import * as pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 
 export async function POST(req: Request) {
   try {
@@ -29,10 +29,9 @@ export async function POST(req: Request) {
     // PDFからテキスト抽出
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pdf = (pdfParse as any).default || pdfParse;
-    const pdfData = await pdf(buffer);
-    const content = pdfData.text;
+    const parser = new PDFParse({ "data": buffer });
+    const content = await parser.getText().then(data => data.text);
+    parser.destroy();
 
     if (!content.trim()) {
       return NextResponse.json(
